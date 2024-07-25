@@ -2,7 +2,7 @@
 
 I wanted a way to display tags for skills in a HTML-based resume. I also wanted all of the HTML, CSS, and Javascript in the same file.
 
-<video autoplay muted loop playsinline src="https://github.com/user-attachments/assets/6dfa05f6-fd5f-4d84-a24b-479832e82abe" type="video/mp4"></video>
+<img src="assets/tag-generator-screen-recording-20240725.gif" alt="Tags example" />
 
 In this initial version I wanted to stay away from using loops within loops to separate out the text from the delimiters.
 
