@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Generate Tags</title>
+    <style>
+      body {
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande',
+          'Lucida Sans', Arial, sans-serif;
+        font-size: 16px;
+      }
+      main {
+        width: 50%;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: stretch;
+      }
+      textarea {
+        flex: 1 1 auto;
+        height: 100px;
+        resize: none;
+      }
+      fieldset {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+        align-items: stretch;
+      }
+      .controls {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1em;
+      }
+      button {
+      }
+      #tagsContainer {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        border: 0.2em solid #e7e7e7;
+        padding: 0.5em;
+        min-height: 1.5em;
+        gap: 0.5em;
+      }
+      .tag {
+        background-color: #888888;
+        color: white;
+        border-radius: 0.5em;
+        font-weight: bold;
+        padding: 0.5em 0.75em;
+        white-space: nowrap;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <form
+        name="myForm"
+        onsubmit="noop()">
+        <fieldset>
+          <legend id="delimitersLegend">Text (delimiters: \n , ;)</legend>
+          <textarea name="entryTextArea">
+Agile, AWS, CSS3, Figma, Git, GitHub;GraphQL
+HTML5, JavaScript ES6, Jest, Kanban , Mentoring| Node.js, React, Redux, Software Development|TDD, TypeScript; UI Design, Vite, Web Development, Webpack</textarea
+          >
+        </fieldset>
+        <div class="controls">
+          <button
+            onclick="generateTags()"
+            type="button">
+            Generate Tags
+          </button>
+        </div>
+        <fieldset>
+          <legend id="tagsLegend">Tags</legend>
+          <div id="tagsContainer"></div>
+        </fieldset>
+      </form>
+    </main>
+    <script defer>
+      const validDelimiters = [',', ';', '\n', '|'];
+      // const validDelimiters = [',', ';', '\n'];
+      // const validDelimiters = [',', ';'];
+
+      function noop(e) {
+        if (e instanceof Event) {
+          e.currentTarget.preventDefault();
+        }
+        return false;
+      }
+
+      const findIndicesOfStringsWithoutDelimiter = (targetStr, str) => {
+        const indices = [];
+        let startPos = 0;
+        while (startPos < targetStr.length) {
+          const index = targetStr.indexOf(str, startPos);
+          indices.push(startPos);
+          if (index === -1) {
+            startPos = targetStr.length;
+            indices.push(startPos);
+          } else {
+            startPos = index + str.length;
+            indices.push(index);
+          }
+        }
+        return indices;
+      };
+
+      const numericSort = (a, b) => {
+        if (a > b) {
+          return 1;
+        } else if (a < b) {
+          return -1;
+        } else {
+          return 0;
+        }
+      };
+
+      const removeDuplicates = (value, index, arr) =>
+        index >= arr.length || (index < arr.length && arr[index + 1] !== value);
+
+      const getTagList = (tagString) => {
+        const tagList = [];
+
+        if (tagString.length <= 0) {
+          return tagList;
+        }
+        let indicesWithoutDelimiters = [];
+
+        for (let i = 0; i < validDelimiters.length; i++) {
+          const newSetOfIndices = findIndicesOfStringsWithoutDelimiter(
+            tagString,
+            validDelimiters[i]
+          );
+          console.log('newSetOfIndices:', newSetOfIndices);
+          indicesWithoutDelimiters = [
+            ...indicesWithoutDelimiters,
+            ...newSetOfIndices,
+          ];
+        }
+        console.log('indicesWithoutDelimiters:', indicesWithoutDelimiters);
+        indicesWithoutDelimiters.sort(numericSort);
+
+        if (validDelimiters.length % 2 === 0) {
+          indicesWithoutDelimiters.shift();
+          indicesWithoutDelimiters.pop();
+        }
+        console.log('indicesWithoutDelimiters:', indicesWithoutDelimiters);
+
+        for (let i = 0; i < indicesWithoutDelimiters.length; i = i + 2) {
+          let tag = tagString.substring(
+            indicesWithoutDelimiters[i],
+            indicesWithoutDelimiters[i + 1]
+          );
+          tag = tag.trim();
+          if (tag !== '') {
+            tagList.push(tag);
+          }
+        }
+        return tagList;
+      };
+
+      const generateTags = () => {
+        console.log('generateTags');
+        const tagString =
+          document.forms['myForm'].elements['entryTextArea'].value;
+
+        const tagList = getTagList(tagString);
+        console.log('tagList:', tagList);
+
+        let innerValue = '';
+        for (let i = 0; i < tagList.length; i++) {
+          innerValue += `<span class="tag">${tagList[i]}</span>`;
+        }
+
+        const container = document.getElementById('tagsContainer');
+        container.innerHTML = innerValue;
+
+        setTagsLegendText(tagList.length);
+      };
+
+      const setTagsLegendText = (numberOfTags = 0) => {
+        const tagsLegend = document.getElementById('tagsLegend');
+        tagsLegend.innerText = `Tags ( ${numberOfTags} )`;
+      };
+
+      const setDelimitersLegendText = () => {
+        const delimLegend = document.getElementById('delimitersLegend');
+        const delimitersString = validDelimiters.join(' ').replace('\n', '\\n');
+        delimLegend.innerText = `Text ( ${delimitersString} )`;
+      };
+
+      setDelimitersLegendText();
+      setTagsLegendText();
+    </script>
+  </body>
+</html>
