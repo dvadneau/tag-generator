@@ -2,6 +2,10 @@
 
 I wanted a way to display tags for skills in a HTML-based resume. I also wanted all of the HTML, CSS, and Javascript in the same file.
 
+<video autoplay muted loop playsinline width="608">
+<source src="assets/tag-generator-screen-recording-20240725.mp4" type="video/mp4">
+</video>
+
 In this initial version I wanted to stay away from using loops within loops to separate out the text from the delimiters.
 
 The idea I started with in this revision was to find the indices of the delimiters and then only take the strings between those points. This was simple enough, but I wanted to account for the possibility of the delimiters being more than 1 character, so I adjusted the logic slightly to mark the indices of the start and end of strings without delimiters.
